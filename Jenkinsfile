@@ -11,6 +11,9 @@ pipeline {
         }
          steps {
                         sh '''
+                        echo ">> Installing unzip and wget"
+                        apt-get update && apt-get install -y unzip wget
+
                         echo ">> Java Version"
                         java --version
 
