@@ -3,6 +3,7 @@ pipeline {
         docker {
             image 'eclipse-temurin:24-jdk'
             args '-u root:root'
+            reuseNode true
         }
     }
 
@@ -31,9 +32,7 @@ pipeline {
                   echo ">> Gradle already set up"
                 fi
 
-                 echo ">> Add Gradle to PATH"
-                        export GRADLE_HOME=$PWD/$GRADLE_DIR
-                        export PATH=$GRADLE_HOME/bin:$PATH
+
 
                 '''
             }
@@ -42,6 +41,10 @@ pipeline {
         stage('Build Spring Boot JAR') {
             steps {
                 sh '''
+                  echo ">> Add Gradle to PATH"
+                                        export GRADLE_HOME=$PWD/$GRADLE_DIR
+                                        export PATH=$GRADLE_HOME/bin:$PATH
+
                 echo ">> Make gradlew executable"
                 chmod +x ./gradlew
 
