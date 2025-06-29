@@ -1,51 +1,63 @@
 pipeline {
-    agent any
+    agent {
+        docker {
+            image 'eclipse-temurin:24-jdk'
+            args '-u root:root'
+        }
+    }
+
+    environment {
+        GRADLE_VERSION = '8.14.2'
+        GRADLE_ZIP = "gradle-${GRADLE_VERSION}-bin.zip"
+        GRADLE_DIR = "gradle-${GRADLE_VERSION}"
+        GRADLE_URL = "https://services.gradle.org/distributions/${GRADLE_ZIP}"
+    }
 
     stages {
-        stage('Build') {
-        agent{
-            docker {
-              image 'eclipse-temurin:24-jdk'
-               args '-u root:root'
-              reuseNode true
-            }
-        }
-         steps {
-                        sh '''
-                        echo ">> Installing unzip and wget"
-                        apt-get update && apt-get install -y unzip wget
+        stage('Setup Gradle') {
+            steps {
+                sh '''
+                echo ">> Java Version"
+                java --version
 
-                        echo ">> Java Version"
-                        java --version
+                echo ">> Install unzip and wget"
+                apt-get update && apt-get install -y unzip wget
 
-                        # Check if Gradle folder exists
-                        if [ ! -d "gradle-8.14.2" ]; then
-                          echo ">> Gradle not found, downloading..."
-                          wget -q https://services.gradle.org/distributions/gradle-8.14.2-bin.zip
-                          unzip -o gradle-8.14.2-bin.zip
-                        else
-                          echo ">> Gradle 8.14.2 already exists, skipping download."
-                        fi
+                if [ ! -d "$GRADLE_DIR" ]; then
+                  echo ">> Downloading Gradle $GRADLE_VERSION"
+                  wget -q "$GRADLE_URL"
+                  unzip -o "$GRADLE_ZIP"
+                else
+                  echo ">> Gradle already set up"
+                fi
 
-                        export GRADLE_HOME=$PWD/gradle-8.14.2
+                 echo ">> Add Gradle to PATH"
+                        export GRADLE_HOME=$PWD/$GRADLE_DIR
                         export PATH=$GRADLE_HOME/bin:$PATH
 
-                        echo ">> Gradle Version"
-                        gradle -v
-                        echo ">> Setting execute permission on gradlew"
-                        chmod +x ./gradlew
-
-                        echo ">> Build Project"
-                        ./gradlew clean bootJar
-                        '''
-                    }
+                '''
+            }
         }
 
+        stage('Build Spring Boot JAR') {
+            steps {
+                sh '''
+                echo ">> Make gradlew executable"
+                chmod +x ./gradlew
+
+                echo ">> Gradle version"
+                gradle -v
+
+                echo ">> Build Spring Boot JAR"
+                ./gradlew clean bootJar
+                '''
+            }
+        }
     }
 
     post {
         always {
-             echo "All steps..."
+            echo "Pipeline completed."
         }
     }
 }
