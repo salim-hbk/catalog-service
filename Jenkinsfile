@@ -6,6 +6,7 @@ pipeline {
         agent{
             docker {
               image 'eclipse-temurin:24-jdk'
+               args '-u root:root'
               reuseNode true
             }
         }
