@@ -1,28 +1,32 @@
 pipeline {
     agent any
 
-    environment {
-            JAVA_HOME = '/usr/local/openjdk-24'
-            GRADLE_HOME = '/opt/gradle'
-            PATH = "${env.JAVA_HOME}/bin:${env.PATH}"
-     }
-
     stages {
         stage('Build') {
         agent{
             docker {
               image 'eclipse-temurin:24-jdk'
-              image 'docker pull gradle:8.14.0-jdk17-alpine'
               reuseNode true
             }
         }
-            steps {
-               sh '''
-               java --version
-               gradle -v
-               '''
+         steps {
+                        sh '''
+                        echo ">> Java Version"
+                        java --version
 
-            }
+                        echo ">> Installing Gradle 8.4.1"
+                        wget https://services.gradle.org/distributions/gradle-8.14.2-bin.zip
+                        unzip gradle-8.14.2-bin.zip
+                        export GRADLE_HOME=$PWD/gradle-8.14.2
+                        export PATH=$GRADLE_HOME/bin:$PATH
+
+                        echo ">> Gradle Version"
+                        gradle -v
+
+                        echo ">> Build Project"
+                        ./gradlew clean bootJar
+                        '''
+                    }
         }
 
     }
