@@ -63,7 +63,7 @@ pipeline {
                 echo ">> Checking if Grype is installed..."
                 if ! command -v grype >/dev/null 2>&1; then
                     echo ">> Grype not found. Installing..."
-                    curl -sSfL https://raw.githubusercontent.com/anchore/grype/main/install.sh | sh -s -- -b /usr/local/bin
+                    wget -qO- https://raw.githubusercontent.com/anchore/grype/main/install.sh | sh -s -- -b /usr/local/bin
                 else
                     echo ">> Grype is already installed."
                 fi
