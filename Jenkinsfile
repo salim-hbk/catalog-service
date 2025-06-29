@@ -26,6 +26,8 @@ pipeline {
 
                         echo ">> Gradle Version"
                         gradle -v
+                        echo ">> Setting execute permission on gradlew"
+                        chmod +x ./gradlew
 
                         echo ">> Build Project"
                         ./gradlew clean bootJar
