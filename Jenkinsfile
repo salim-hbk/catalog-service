@@ -18,9 +18,15 @@ pipeline {
                         echo ">> Java Version"
                         java --version
 
-                        echo ">> Installing Gradle 8.4.1"
-                        wget https://services.gradle.org/distributions/gradle-8.14.2-bin.zip
-                        unzip gradle-8.14.2-bin.zip
+                        # Check if Gradle folder exists
+                        if [ ! -d "gradle-8.14.2" ]; then
+                          echo ">> Gradle not found, downloading..."
+                          wget -q https://services.gradle.org/distributions/gradle-8.14.2-bin.zip
+                          unzip -o gradle-8.14.2-bin.zip
+                        else
+                          echo ">> Gradle 8.14.2 already exists, skipping download."
+                        fi
+
                         export GRADLE_HOME=$PWD/gradle-8.14.2
                         export PATH=$GRADLE_HOME/bin:$PATH
 
